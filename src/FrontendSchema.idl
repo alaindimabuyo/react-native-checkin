@@ -1,0 +1,66 @@
+scalar Date
+
+enum Mood {
+	HAPPY,
+  ANGRY,
+  SAD,
+  CONFIDENT,
+}
+
+interface Node {
+   id: ID! @fake(type:uuid)
+}
+
+interface NodeTimestamp {
+  created: Date! @fake(type:pastDate)
+}
+
+type Tag implements Node {
+  id: ID!@fake(type:uuid)
+  label: String! @fake(type:words)
+}
+
+type TagEdge {
+  node: Tag!
+  tag: Tag!
+}
+
+type TagConnection {
+  edges: [TagEdge]! @listLength(min: 3, max: 6)
+}
+
+type User implements Node & NodeTimestamp & UserWithName {
+    id: ID!@fake(type:uuid)
+  created: Date! @fake(type:pastDate)
+    firstName: String! @fake(type: firstName)
+  lastName: String! @fake(type: lastName)
+
+}
+
+interface UserWithName {
+  firstName: String!@fake(type: firstName)
+  lastName: String!@fake(type: lastName)
+}
+
+type CheckIn implements Node & NodeTimestamp {
+  id: ID! @fake(type:uuid)
+  created: Date!@fake(type:pastDate)
+  mood: Mood!
+  tags: TagConnection!
+  user: User!
+}
+
+
+type CheckInEdge {
+  node: CheckIn!
+  tag: CheckIn!
+}
+
+type CheckInConnection {
+  edges: [CheckInEdge]! @listLength(min: 1, max: 10)
+}
+
+type Query {
+  checkIns: CheckInConnection!
+  checkIn(id: ID): CheckIn!
+}
