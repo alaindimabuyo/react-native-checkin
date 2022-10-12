@@ -1,22 +1,43 @@
 import React from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import {useQuery} from '@apollo/client';
+import {GET_CHECKIN} from '../query/GetCheckIn';
 const CheckInComponent = () => {
+  const {loading, error, data} = useQuery(GET_CHECKIN);
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>Error :(</Text>;
+  }
+
+  const tags = data.checkIn.tags.edges;
+  const user = data.checkIn.user.firstName + ' ' + data.checkIn.user.lastName;
+  const dateCreated = data.checkIn.created;
+  const date1 = new Date(dateCreated);
+  const date2 = new Date();
+
+  const difference = date2.getTime() - date1.getTime();
+
+  const days = Math.ceil(difference / (1000 * 3600 * 24));
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.headerItem}>
           <Text style={styles.avatar}>😎</Text>
           <View>
-            <Text style={styles.title}>John Doe</Text>
+            <Text style={styles.title}>{user}</Text>
             <Text style={styles.subHeader}>
               Check-in provided via self check-in.
             </Text>
           </View>
         </View>
         <View style={styles.rowDirection}>
-          <Text style={styles.duration}>5 days ago</Text>
+          <Text style={styles.duration}>{days} days ago</Text>
           <Icon name="chevron-down" size={15} color="#1F2638" />
         </View>
       </View>
@@ -29,20 +50,16 @@ const CheckInComponent = () => {
           Got selected for the state basketball team!
         </Text>
       </View>
-
-      <View style={styles.rowDirection}>
-        <View style={styles.tagContainer}>
-          <Text>
-            <Icon name="pricetag" size={15} color="#808080" />
-          </Text>
-          <Text style={styles.tagText}>Accomplished a goal</Text>
-        </View>
-
-        <View style={styles.tagContainer}>
-          <Text>
-            <Icon name="pricetag" size={15} color="#808080" />
-          </Text>
-          <Text style={styles.tagText}>Sport</Text>
+      <View>
+        <View style={styles.rowDirection}>
+          {tags.map(tag => (
+            <View style={styles.tagContainer}>
+              <Text>
+                <Icon name="pricetag" size={15} color="#808080" />
+              </Text>
+              <Text style={styles.tagText}>{tag.node.label}</Text>
+            </View>
+          ))}
         </View>
       </View>
     </View>
@@ -70,6 +87,8 @@ const styles = StyleSheet.create({
   headerItem: {alignItems: 'center', flexDirection: 'row'},
   rowDirection: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 20,
   },
   paragraph: {
     fontWeight: 'bold',
@@ -83,7 +102,7 @@ const styles = StyleSheet.create({
   tagContainer: {
     flexDirection: 'row',
     marginRight: 10,
-    marginTop: 40,
+    marginTop: 10,
     padding: 5,
     borderColor: '#808080',
     borderStyle: 'solid',
