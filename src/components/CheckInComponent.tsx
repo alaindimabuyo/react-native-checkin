@@ -13,11 +13,10 @@ const CheckInComponent = () => {
   if (error) {
     return <Text>Error :(</Text>;
   }
-
-  const tags = data.checkIn.tags.edges;
-  const user = data.checkIn.user.firstName + ' ' + data.checkIn.user.lastName;
-  const dateCreated = data.checkIn.created;
-  const date1 = new Date(dateCreated);
+  const {tags, user, created} = data?.checkIn;
+  const tagsEdge = tags.edges;
+  const userName = user.firstName + ' ' + user.lastName;
+  const date1 = new Date(created);
   const date2 = new Date();
 
   const difference = date2.getTime() - date1.getTime();
@@ -30,7 +29,7 @@ const CheckInComponent = () => {
         <View style={styles.headerItem}>
           <Text style={styles.avatar}>😎</Text>
           <View>
-            <Text style={styles.title}>{user}</Text>
+            <Text style={styles.title}>{userName}</Text>
             <Text style={styles.subHeader}>
               Check-in provided via self check-in.
             </Text>
@@ -52,8 +51,8 @@ const CheckInComponent = () => {
       </View>
       <View>
         <View style={styles.rowDirection}>
-          {tags.map(tag => (
-            <View style={styles.tagContainer}>
+          {tagsEdge.map(tag => (
+            <View key={tag.node.id} style={styles.tagContainer}>
               <Text>
                 <Icon name="pricetag" size={15} color="#808080" />
               </Text>
